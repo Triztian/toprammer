@@ -31,6 +31,7 @@ def usage():
 	print("")
 	print("Usage: {} [OPTIONS] [ACTIONS]".format(sys.argv[0]))
 	print("")
+	print("--gui					Initiate the Graphical User Interface")
 	print(" -c|--chip-id            The ID of the handled chip. (mandatory)")
 	print("                         See -t|--list for a list of supported chips.")
 	print("")
@@ -88,15 +89,11 @@ def usage():
 	print(" ihex-raw                Raw Intel hex (don't interpret sections)")
 	print(" ahex                    Hex with ASCII dump")
 
-IO_handlers = {
-	"bin"		: IO_binary,
-	"ihex"		: IO_ihex,
-	"ihex-raw"	: IO_ihex,
-	"ahex"		: IO_ahex,
-}
 
 def fileOut(filename, fmtString, data):
-	handler = IO_handlers[fmtString]()
+	"""Write the output file"""
+
+	handler = get_IO_handler(data, fmtString)
 	data = handler.fromBinary(data)
 	if filename == "-":
 		sys.stdout.write(data)
@@ -104,21 +101,17 @@ def fileOut(filename, fmtString, data):
 		open(filename, "w+b").write(data)
 
 def fileIn(top, action, filename, fmtString):
-	if filename == "-":
-		data = sys.stdin.read()
-	else:
-		data = open(filename, "rb").read()
-	if fmtString == "auto":
-		handler = IO_autodetect(data)()
-	else:
-		handler = IO_handlers[fmtString]()
+	"""Read a file and execute an action"""
+
+	data = sys.stdin.read() if filename == '-' else open(filename, "rb").read()
+	handler = get_IO_handler(data, fmtString)
+
 	if isinstance(handler, IO_ihex):
 		interp = top.getChip().getIHexInterpreter()
 		interp.interpret(data)
-		if interp.cumulativeSupported():
-			readRaw = fmtString.endswith("-raw")
-		else:
-			readRaw = True
+
+		readRaw = True if interp.cumulativeSupported() else fmtString.endswith("-raw")
+
 		if action == "write-prog":
 			binData = interp.getProgmem(dontInterpretSections = readRaw)
 		elif action == "write-eeprom":
@@ -245,12 +238,15 @@ def main(argv):
 	except (getopt.GetoptError, ValueError), e:
 		usage()
 		return 1
+
 	if opt_action != "print-list" and not opt_chipID:
 		print "-c|--chip-id is mandatory!"
 		return 1
+
 	if not opt_informat in ("auto", "bin", "ihex", "ihex-raw", "ahex"):
 		print "Invalid -I|--in-format"
 		return 1
+
 	if not opt_outformat in ("bin", "ihex", "ihex-raw", "ahex"):
 		print "Invalid -O|--out-format"
 		return 1
@@ -265,12 +261,15 @@ def main(argv):
 					verbose=opt_verbose, showBroken=True)
 			return 0
 
-		top = TOP(devIdentifier = opt_device,
+		top = TOP(
+			  devIdentifier = opt_device,
 			  verbose = opt_verbose, forceLevel = opt_forceLevel,
 			  noqueue = opt_noqueue, usebroken = opt_usebroken,
 			  forceBitfileUpload = opt_forceBitfileUpload)
+
 		top.initializeChip(chipID = opt_chipID,
 				   assignedChipOptions = opt_chipOptions)
+
 		if opt_action == "read-sig":
 			fileOut(opt_file, opt_outformat, top.readSignature())
 		elif opt_action == "erase":

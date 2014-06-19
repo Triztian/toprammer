@@ -20,6 +20,7 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import StringIO
 from util import *
 from layout_generator import *
 from user_interface import *
@@ -104,6 +105,7 @@ class Chip(object):
 		self.__chipPinVCC = chipPinVCC
 		self.__chipPinsVPP = chipPinsVPP
 		self.__chipPinGND = chipPinGND
+		self.detail_level = 1
 
 	def printWarning(self, message):
 		self.top.printWarning(self.chipDescription.chipID +\
@@ -415,8 +417,10 @@ class ChipDescription:
 
 		if not chipID:
 			chipID = bitfile
+
 		if isinstance(chipVendors, str):
 			chipVendors = (chipVendors, )
+
 		self.chipImplClass = chipImplClass
 		self.bitfile = bitfile
 		self.chipID = chipID
@@ -464,20 +468,23 @@ class ChipDescription:
 		for chip in getRegisteredChips():
 			if chip.broken and not showBroken:
 				continue
+
 			if chip.chipType == cls.TYPE_INTERNAL:
 				continue
+
 			count = count + 1
 			if count >= 2:
 				fd.write("\n")
-			chip.dump(fd, verbose)
 
+			chip.detail_level = verbose
+			fd.write(str(chip))
 
-	def dump(self, fd, verbose=1):
-		"""Dump information about a registered chip to file fd."""
-
-		if verbose <= 0:
+	def __str__(self):
+		"""Readable representation of the chip"""
+		fd = StringIO.StringIO()
+		if self.detail_level <= 0:
 			fd.write(self.chipID)
-			return
+			return fd.getvalue()
 
 		def wrline(prefix, content):
 			# Write a formatted feature line
@@ -502,28 +509,28 @@ class ChipDescription:
 		sep = '+' + '-' * (len(banner) + 4) + '+\n'
 		fd.write(sep + '|  ' + banner + '  |\n' + sep)
 
-		if verbose >= 1:
+		if self.detail_level >= 1:
 			wrline("Chip ID", self.chipID)
 
-		if verbose >= 2:
+		if self.detail_level >= 2:
 			bitfile = self.bitfile
 			if not bitfile.endswith('.bit'):
 				bitfile += '.bit'
 
 			wrline("BIT file", bitfile)
 
-		if verbose >= 1:
+		if self.detail_level >= 1:
 			for opt in self.chipOptions:
 				wrline("Chip option", str(opt))
 
-		if verbose >= 3 and self.packages:
+		if self.detail_level >= 3 and self.packages:
 			for (package, description) in self.packages:
 				if description:
 					description = "  (" + description + ")"
 
 				wrline("Chip package", package + description)
 
-		if verbose >= 4:
+		if self.detail_level >= 4:
 			supportedFeatures = (
 				(Chip.SUPPORT_ERASE,		"Full chip erase"),
 				(Chip.SUPPORT_SIGREAD,		"Chip signature reading"),
@@ -546,14 +553,16 @@ class ChipDescription:
 				if flag & supportFlags:
 					wrline("Support for", description)
 
-		if verbose >= 2 and self.comment:
+		if self.detail_level >= 2 and self.comment:
 			wrline("Comment", self.comment)
 
-		if verbose >= 3:
+		if self.detail_level >= 3:
 			maintainer = self.maintainer
 			if not maintainer:
 				maintainer = "NONE"
 			wrline("Maintainer", maintainer)
+
+		return fd.getvalue()
 
 	def getChipOption(self, name):
 		"""Get a ChipOption by case insensitive 'name'."""

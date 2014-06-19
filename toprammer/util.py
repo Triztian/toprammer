@@ -26,7 +26,8 @@ import math
 import random
 
 
-class TOPException(Exception): pass
+class TOPException(Exception): 
+	pass
 
 
 if sys.version_info[0] == 2: # Python 2.x
@@ -285,12 +286,26 @@ class IO_binary(object):
 	def fromBinary(self, data):
 		return data
 
-def IO_autodetect(data):
-	"Returns an IO_... object for the data."
+IO_HANDLER_MAPPING = {
+	"bin"		: IO_binary,
+	"ihex"		: IO_ihex,
+	"ihex-raw"	: IO_ihex,
+	"ahex"		: IO_ahex,
+}
+
+def get_IO_handler(data, handler="auto"):
+	"""Returns an IO_... object for the data."""
+
+	if handler != 'auto':
+		return IO_HANDLER_MAPPING[handler];
+
+	H = None
 	if IO_ihex().autodetect(data):
-		return IO_ihex
+		H = IO_ihex
 	elif IO_ahex().autodetect(data):
-		return IO_ahex
+		H = IO_ahex
 	elif IO_binary().autodetect(data):
-		return IO_binary
+		H = IO_binary
+	return H()
+
 	assert(0) # Can't reach, because binary will always match.
