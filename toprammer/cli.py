@@ -142,6 +142,9 @@ def main(argv):
 	opt_usebroken = False
 	opt_informat = "auto"
 	opt_outformat = "bin"
+
+	chips = register_chips()
+
 	try:
 		(opts, args) = getopt.getopt(sys.argv[1:],
 			"hc:d:V:Qs:xTp:P:e:E:f:F:o:Ul:L:r:R:BtI:O:C:a:A:",
@@ -156,8 +159,10 @@ def main(argv):
 			if o in ("-h", "--help"):
 				usage()
 				return 0
+
 			if o in ("-c", "--chip-id"):
 				opt_chipID = v
+
 			if o in ("-C", "--chip-opt"):
 				try:
 					v = v.split('=')
@@ -167,8 +172,10 @@ def main(argv):
 					return 1
 				copt = AssignedChipOption(name, value)
 				opt_chipOptions.append(copt)
+
 			if o in ("-t", "--list"):
 				opt_action = "print-list"
+
 			if o in ("-d", "--device"):
 				try:
 					v = v.replace('.', ':').split(':')
@@ -253,12 +260,22 @@ def main(argv):
 
 	try:
 		if opt_action == "print-list":
+			_chips = [] 
 			if opt_chipID:
-				desc = ChipDescription.findOne(opt_chipID, True)
-				desc.dump(sys.stdout, verbose=opt_verbose)
-			else:
-				ChipDescription.dumpAll(sys.stdout,
-					verbose=opt_verbose, showBroken=True)
+				chip = ChipDescription.findOne(opt_chipID, True)
+				_chips.append(chip)
+
+			if not _chips:
+				_chips += chips
+
+			# ChipDescription.dumpAll(sys.stdout,
+			#    verbose=opt_verbose, showBroken=True)
+			# TODO: Remove the filter once all chips have the ChipDescription
+			# 		as part of the class
+			for chip in filter(lambda c: hasattr(c, 'description'), _chips):
+				chip.description.detail_level = opt_verbose
+				print(str(chip.description))
+					
 			return 0
 
 		top = TOP(

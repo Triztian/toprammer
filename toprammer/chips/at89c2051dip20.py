@@ -25,6 +25,17 @@ from chip import *
 
 
 class Chip_AT89C2051dip20(Chip):
+
+	description = ChipDescription(
+		None,
+		bitfile = "at89c2051dip20",
+		runtimeID = (0x0005, 0x01),
+		chipVendors = "Atmel",
+		description = "AT89C2051",
+		maintainer = None,
+		packages = ( ("DIP20", ""), )
+	)
+
 	STAT_BUSY	= 0x01 # Programmer is running a command
 	STAT_ERR	= 0x02 # Error during write
 
@@ -219,12 +230,3 @@ class Chip_AT89C2051dip20(Chip):
 			self.top.hostDelay(0.001)
 		self.throwError("Timeout in busywait.")
 
-ChipDescription(
-	Chip_AT89C2051dip20,
-	bitfile = "at89c2051dip20",
-	runtimeID = (0x0005, 0x01),
-	chipVendors = "Atmel",
-	description = "AT89C2051",
-	maintainer = None,
-	packages = ( ("DIP20", ""), )
-)

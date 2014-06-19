@@ -21,6 +21,8 @@
 """
 
 import StringIO
+import inspect
+import chips
 from util import *
 from layout_generator import *
 from user_interface import *
@@ -264,11 +266,14 @@ class Chip(object):
 		# Override me in the subclass, if required.
 		self.throwError("User ID Location writing not supported")		
 
-__registeredChips = []
-
-def getRegisteredChips():
-	"Get a list of registered ChipDescriptions"
-	return __registeredChips
+def register_chips():
+	"""Register the available chips (Found in the chips submodule)"""
+	_chips = []
+	for name, member in inspect.getmembers(chips, inspect.isclass):
+		if Chip in inspect.getmro(member) and member != Chip:
+			_chips.append(member)
+	
+	return _chips
 
 def getRegisteredVendors():
 	"Returns a dict of 'vendor : [descriptor, ...]' "
@@ -278,13 +283,6 @@ def getRegisteredVendors():
 			vendors.setdefault(vendor, []).append(descriptor)
 	return vendors
 
-def _registerChip(chipDesc):
-	regList = getRegisteredChips()
-	if chipDesc.chipID in [ cd.chipID for cd in regList ]:
-		raise TOPException("Chip description registration: "
-			"The chipID '%s' is not unique." %\
-			chipDesc.chipID)
-	regList.append(chipDesc)
 
 class BitDescription:
 	def __init__(self, bitNr, description):
@@ -436,16 +434,6 @@ class ChipDescription:
 		self.maintainer = maintainer
 		self.broken = broken
 
-		_registerChip(self)
-
-	@classmethod
-	def findAll(cls, chipID, allowBroken=False):
-		"Find all ChipDescriptions by fuzzy chipID match."
-		found = [ chipDesc for chipDesc in getRegisteredChips() if (
-			(not chipDesc.broken or allowBroken) and\
-			(chipDesc.chipID.lower().find(chipID.lower()) >= 0)
-		) ]
-		return found
 
 	@classmethod
 	def findOne(cls, chipID, allowBroken=False):
@@ -460,24 +448,6 @@ class ChipDescription:
 				"The chipID \"%s\" is not unique. Choices are: %s" %\
 				(chipID, ", ".join(choices)))
 		return found[0]
-
-	@classmethod
-	def dumpAll(cls, fd, verbose=1, showBroken=True):
-		"Dump all supported chips to file fd."
-		count = 0
-		for chip in getRegisteredChips():
-			if chip.broken and not showBroken:
-				continue
-
-			if chip.chipType == cls.TYPE_INTERNAL:
-				continue
-
-			count = count + 1
-			if count >= 2:
-				fd.write("\n")
-
-			chip.detail_level = verbose
-			fd.write(str(chip))
 
 	def __str__(self):
 		"""Readable representation of the chip"""

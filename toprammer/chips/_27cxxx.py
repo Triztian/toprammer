@@ -278,7 +278,7 @@ class Chip_27cXXX(Chip):
 		self.top.cmdFPGARead(0)
 
 class ChipDescription_27cXXX(ChipDescription):
-	"Generic 27cXXX ChipDescription"
+	"""Generic 27cXXX ChipDescription"""
 
 	def __init__(self, chipImplClass, name):
 		ChipDescription.__init__(self,
@@ -305,6 +305,7 @@ class ChipDescription_27cXXX(ChipDescription):
 		)
 
 class Chip_27c16(Chip_27cXXX):
+	description = ChipDescription_27cXXX(None, "27c16")
 	def __init__(self):
 		Chip_27cXXX.__init__(self,
 			chipType = Chip_27cXXX.CTYPE_16,
@@ -312,7 +313,6 @@ class Chip_27c16(Chip_27cXXX):
 			chipPinVPP = 23,
 			chipPinGND = 14)
 
-ChipDescription_27cXXX(Chip_27c16, "27c16")
 
 class Chip_27c32(Chip_27cXXX):
 	def __init__(self):
