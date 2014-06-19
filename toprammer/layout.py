@@ -36,26 +36,26 @@ class FakeTOP(object):
 		return self.topType
 
 def usage():
-	print "Toprammer ZIF socket layout generator v%s" % VERSION
-	print ""
-	print "Usage: %s [OPTIONS]" % sys.argv[0]
-	print ""
-	print "Mandatory options:"
-	print " -d|--device TOPxxxx    The TOPxxxx device that is used."
-	print "                        Possible choices are: TOP2049"
-	print " -p|--package DIPxx     The package type of the DUT."
-	print "                        Package may also be the name of a supported chip."
-	print "                        In this case, --vcc, --vpp and --gnd are ignored."
-	print " -v|--vcc PIN           Set VCC pin number, relative to the package."
-	print " -P|--vpp PIN(s)        Set VPP pin number(s), relative to the package."
-	print "                        May be one pin number or a comma separated list of pin numbers."
-	print "                        May be omitted or NONE, if no VPP pin is required."
-	print " -g|--gnd PIN           Set GND pin number, relative to the package."
-	print ""
-	print "Optional:"
-	print " -h|--help              Print this help text"
-	print " -I|--only-insert       Only show insert-layout"
-	print " -S|--only-supply       Only show supply-layout"
+	print("Toprammer ZIF socket layout generator v{}".format(VERSION))
+	print("")
+	print("Usage: %s [OPTIONS]") % sys.argv[0]
+	print("")
+	print("Mandatory options:")
+	print(" -d|--device TOPxxxx    The TOPxxxx device that is used.")
+	print("                        Possible choices are: TOP2049")
+	print(" -p|--package DIPxx     The package type of the DUT.")
+	print("                        Package may also be the name of a supported chip.")
+	print("                        In this case, --vcc, --vpp and --gnd are ignored.")
+	print(" -v|--vcc PIN           Set VCC pin number, relative to the package.")
+	print(" -P|--vpp PIN(s)        Set VPP pin number(s), relative to the package.")
+	print("                        May be one pin number or a comma separated list of pin numbers.")
+	print("                        May be omitted or NONE, if no VPP pin is required.")
+	print(" -g|--gnd PIN           Set GND pin number, relative to the package.")
+	print("")
+	print("Optional:")
+	print(" -h|--help              Print this help text")
+	print(" -I|--only-insert       Only show insert-layout")
+	print(" -S|--only-supply       Only show supply-layout")
 
 def main(argv):
 	package = None

@@ -29,7 +29,7 @@ import getopt
 def usage():
 	print("TOP2049 Open Source programming suite v{}".format(VERSION))
 	print("")
-	print("Usage: %s [OPTIONS] [ACTIONS]") % sys.argv[0]
+	print("Usage: {} [OPTIONS] [ACTIONS]".format(sys.argv[0]))
 	print("")
 	print(" -c|--chip-id            The ID of the handled chip. (mandatory)")
 	print("                         See -t|--list for a list of supported chips.")

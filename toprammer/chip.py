@@ -471,8 +471,9 @@ class ChipDescription:
 				fd.write("\n")
 			chip.dump(fd, verbose)
 
+
 	def dump(self, fd, verbose=1):
-		"Dump information about a registered chip to file fd."
+		"""Dump information about a registered chip to file fd."""
 
 		if verbose <= 0:
 			fd.write(self.chipID)
@@ -485,35 +486,43 @@ class ChipDescription:
 		banner = ""
 		if self.chipVendors:
 			banner += ", ".join(self.chipVendors) + "  "
-		if self.description:
-			banner += self.description
-		else:
-			banner += self.bitfile
+
+		banner += self.description if self.description else self.bitfile
+
 		extraFlags = []
 		if not self.maintainer:
 			extraFlags.append("Orphaned")
+
 		if self.broken:
 			extraFlags.append("Broken implementation")
+
 		if extraFlags:
 			banner += "  (%s)" % "; ".join(extraFlags)
+
 		sep = '+' + '-' * (len(banner) + 4) + '+\n'
 		fd.write(sep + '|  ' + banner + '  |\n' + sep)
 
 		if verbose >= 1:
 			wrline("Chip ID", self.chipID)
+
 		if verbose >= 2:
 			bitfile = self.bitfile
 			if not bitfile.endswith('.bit'):
 				bitfile += '.bit'
+
 			wrline("BIT file", bitfile)
+
 		if verbose >= 1:
 			for opt in self.chipOptions:
 				wrline("Chip option", str(opt))
+
 		if verbose >= 3 and self.packages:
 			for (package, description) in self.packages:
 				if description:
 					description = "  (" + description + ")"
+
 				wrline("Chip package", package + description)
+
 		if verbose >= 4:
 			supportedFeatures = (
 				(Chip.SUPPORT_ERASE,		"Full chip erase"),
@@ -536,8 +545,10 @@ class ChipDescription:
 			for (flag, description) in supportedFeatures:
 				if flag & supportFlags:
 					wrline("Support for", description)
+
 		if verbose >= 2 and self.comment:
 			wrline("Comment", self.comment)
+
 		if verbose >= 3:
 			maintainer = self.maintainer
 			if not maintainer:
@@ -545,7 +556,7 @@ class ChipDescription:
 			wrline("Maintainer", maintainer)
 
 	def getChipOption(self, name):
-		"Get a ChipOption by case insensitive 'name'."
+		"""Get a ChipOption by case insensitive 'name'."""
 		name = name.lower()
 		for opt in self.chipOptions:
 			if opt.name.lower() == name:
