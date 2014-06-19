@@ -28,6 +28,28 @@ class Chip_AT89S52dip40(Chip):
 	STAT_BUSY	= 0x01 # Programmer is running a command
 	STAT_ERR	= 0x02 # Error during write
 
+	description = ChipDescription(
+		None,
+		bitfile = "at89s5xdip40",
+		chipID = "at89s52dip40",	
+		runtimeID = (0x0005, 0x01),
+		chipVendors = "Atmel",
+		description = "AT89S52",
+		lockbitDesc = (
+			BitDescription(0, "Unused"),
+			BitDescription(1, "Unused"),
+			BitDescription(2, "BLB01 - further programming of flash mem. is disabled"),
+			BitDescription(3, "BLB02 - verify disabled"),
+			BitDescription(4, "BLB03 - external execution disabled"),
+			BitDescription(5, "Unused"),
+			BitDescription(6, "Unused"),
+			BitDescription(7, "Unused"),
+			BitDescription(8, "Unused"),
+		),
+		maintainer = None,
+		packages = ( ("DIP40", ""), )
+	)
+
 	def __init__(self):
 		Chip.__init__(self,
 			      chipPackage = "DIP40",
@@ -297,25 +319,3 @@ class Chip_AT89S52dip40(Chip):
 				return byte2int(stat[0])
 			self.top.hostDelay(0.001)
 		self.throwError("Timeout in busywait.")
-lockbitDesc = (
-	BitDescription(0, "Unused"),
-	BitDescription(1, "Unused"),
-	BitDescription(2, "BLB01 - further programming of flash mem. is disabled"),
-	BitDescription(3, "BLB02 - verify disabled"),
-	BitDescription(4, "BLB03 - external execution disabled"),
-	BitDescription(5, "Unused"),
-	BitDescription(6, "Unused"),
-	BitDescription(7, "Unused"),
-	BitDescription(8, "Unused"),
-)
-ChipDescription(
-	Chip_AT89S52dip40,
-	bitfile = "at89s5xdip40",
-	chipID = "at89s52dip40",	
-	runtimeID = (0x0005, 0x01),
-	chipVendors = "Atmel",
-	description = "AT89S52",
-	lockbitDesc = lockbitDesc,
-	maintainer = None,
-	packages = ( ("DIP40", ""), )
-)
